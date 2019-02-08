@@ -242,13 +242,13 @@ func (m *AwsManager) buildNodeFromTemplate(asg *asg, template *asgTemplate) (*ap
 
 	resourcesFromTags := extractResourceAllocatableFromAsg(template.Tags)
 	if val, ok := resourcesFromTags["cpu"]; ok {
-		node.Status.Capacity[apiv1.ResourceCPU] = val
+		node.Status.Capacity[apiv1.ResourceCPU] = *val
 	}
 	if val, ok := resourcesFromTags["memory"]; ok {
-		node.Status.Capacity[apiv1.ResourceMemory] = val
+		node.Status.Capacity[apiv1.ResourceMemory] = *val
 	}
 	if val, ok := resourcesFromTags["ephemeral-storage"]; ok {
-		node.Status.Capacity[apiv1.ResourceEphemeralStorage] = val
+		node.Status.Capacity[apiv1.ResourceEphemeralStorage] = *val
 	}
 
 	// TODO: use proper allocatable!!
@@ -297,8 +297,8 @@ func extractLabelsFromAsg(tags []*autoscaling.TagDescription) map[string]string 
 	return result
 }
 
-func extractResourceAllocatableFromAsg(tags []*autoscaling.TagDescription) map[string]resource.Quantity {
-	result := make(map[string]resource.Quantity)
+func extractResourceAllocatableFromAsg(tags []*autoscaling.TagDescription) map[string]*resource.Quantity {
+	result := make(map[string]*resource.Quantity)
 
 	for _, tag := range tags {
 		k := *tag.Key
@@ -311,7 +311,7 @@ func extractResourceAllocatableFromAsg(tags []*autoscaling.TagDescription) map[s
 				if err != nil {
 					continue
 				}
-				result[label] = quantity
+				result[label] = &quantity
 			}
 		}
 	}
